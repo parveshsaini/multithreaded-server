@@ -1,12 +1,17 @@
-use std::{fmt::format, fs, io::{BufRead, BufReader, Write}, net::{TcpListener, TcpStream}};
+use std::{fs, io::{BufRead, BufReader, Write}, net::{TcpListener, TcpStream}};
+
+use server::ThreadPool;
 
 fn main(){
     let listner = TcpListener::bind("127.0.0.1:3000").unwrap();
+    let pool = ThreadPool::new(4);
 
     for stream in listner.incoming() {
         let stream = stream.unwrap();
 
-        handle_connection(stream);
+        pool.execute(|| {
+            handle_connection(stream);
+        })
     }
 }
 
